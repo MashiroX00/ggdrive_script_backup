@@ -92,7 +92,17 @@ def get_drive_service():
                     "  https://console.cloud.google.com/ → APIs & Services → Credentials → OAuth 2.0 Client IDs"
                 )
             flow = InstalledAppFlow.from_client_secrets_file(str(CREDENTIALS_FILE), SCOPES)
-            creds = flow.run_local_server(port=0)
+            # Headless / server mode — ไม่ต้องการ browser บนเครื่อง
+            flow.redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
+            auth_url, _ = flow.authorization_url(prompt="consent")
+            print("\n" + "="*60)
+            print("เปิด URL นี้บน browser เครื่องอื่น:")
+            print(f"\n  {auth_url}\n")
+            print("login Google → อนุญาต → copy authorization code")
+            print("="*60)
+            code = input("วาง authorization code ที่นี่: ").strip()
+            flow.fetch_token(code=code)
+            creds = flow.credentials
 
         # บันทึก token เพื่อใช้ครั้งต่อไป
         TOKEN_FILE.write_text(creds.to_json(), encoding="utf-8")

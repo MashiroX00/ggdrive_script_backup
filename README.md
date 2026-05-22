@@ -6,7 +6,7 @@ Python script สำหรับบีบอัดไฟล์/โฟลเด�
 
 - **บีบอัด in-memory** — ไม่เขียนลง disk ระหว่างบีบอัด ประหยัด I/O
 - **Resumable upload** — รองรับการอัปโหลดไฟล์ขนาดใหญ่อย่างเสถียร
-- **OAuth 2.0 + token cache** — Login ครั้งแรกผ่าน browser, ครั้งต่อไปใช้ token ที่แคชไว้
+- **OAuth 2.0 + token cache** — Login ครั้งแรกแบบ headless (copy URL → paste code), ครั้งต่อไปใช้ token ที่แคชไว้
 - **หลาย source ในคราวเดียว** — ระบุไฟล์/โฟลเดอร์หลายรายการพร้อมกัน
 - **Retention policy** — ลบ backup เก่ากว่า N วันใน Drive อัตโนมัติ
 - **ดูรายการ backup** — แสดงไฟล์ใน folder ปลายทางพร้อมขนาดและวันที่
@@ -65,9 +65,19 @@ BACKUP_LOG_FILE=./backup.log
 BACKUP_RETENTION_DAYS=0
 ```
 
-### 3. Login ครั้งแรก
+### 3. Login ครั้งแรก (Headless OAuth)
 
-รัน script ครั้งแรก — จะเปิด browser ให้ล็อกอิน Google เพื่อขอสิทธิ์ OAuth และบันทึก `token.json` อัตโนมัติ
+Script ใช้ **Out-of-Band (OOB) flow** — ไม่ต้องมี browser บนเครื่อง เหมาะกับ server/SSH
+
+รัน script ครั้งแรกแล้วทำตามขั้นตอน:
+
+1. Script จะพิมพ์ URL ออกมาใน terminal
+2. **Copy URL** ไปเปิดบน browser เครื่องใดก็ได้
+3. Login Google แล้วกด **อนุญาต**
+4. Google แสดง **authorization code** — copy code นั้น
+5. **Paste code** กลับใน terminal แล้วกด Enter
+
+Script จะบันทึก `token.json` อัตโนมัติ — ครั้งต่อไปไม่ต้อง login ซ้ำ (จนกว่า token จะหมดอายุ)
 
 ## การใช้งาน
 
@@ -125,6 +135,7 @@ python main.py --source /path/to/folder --verbose
 ```
 .
 ├── main.py          # script หลัก
+├── backup.sh        # interactive shell wrapper (quick / full profile)
 ├── pyproject.toml   # dependencies (uv/pip)
 ├── env.example      # ตัวอย่างไฟล์ .env
 ├── .gitignore       # ไม่ track .env, credentials.json, token.json
