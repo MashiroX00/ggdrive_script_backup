@@ -49,10 +49,18 @@ load_dotenv(ENV_FILE)
 SCOPES = ["https://www.googleapis.com/auth/drive.file"]
 
 # ค่าจาก .env (ดู .env.example)
-CREDENTIALS_FILE  = Path(os.getenv("GDRIVE_CREDENTIALS_FILE", BASE_DIR / "credentials.json"))
-TOKEN_FILE        = Path(os.getenv("GDRIVE_TOKEN_FILE",       BASE_DIR / "token.json"))
+def _resolve_path(env_var: str, default: Path) -> Path:
+    """resolve path จาก env var เทียบกับ BASE_DIR เสมอ ไม่ว่าจะรัน script จาก CWD ไหน"""
+    raw = os.getenv(env_var)
+    if not raw:
+        return default
+    p = Path(raw)
+    return p if p.is_absolute() else BASE_DIR / p
+
+CREDENTIALS_FILE  = _resolve_path("GDRIVE_CREDENTIALS_FILE", BASE_DIR / "credentials.json")
+TOKEN_FILE        = _resolve_path("GDRIVE_TOKEN_FILE",        BASE_DIR / "token.json")
 DEFAULT_FOLDER_ID = os.getenv("GDRIVE_FOLDER_ID", "root")   # Google Drive folder ID ปลายทาง
-LOG_FILE          = os.getenv("BACKUP_LOG_FILE", str(BASE_DIR / "backup.log"))
+LOG_FILE          = str(_resolve_path("BACKUP_LOG_FILE",      BASE_DIR / "backup.log"))
 DEFAULT_RETENTION = int(os.getenv("BACKUP_RETENTION_DAYS", "0"))  # 0 = ไม่ลบอัตโนมัติ
 
 # ─────────────────────────────────────────────
