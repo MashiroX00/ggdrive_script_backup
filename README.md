@@ -142,11 +142,3 @@ python main.py --source /path/to/folder --verbose
 └── backup.log       # log file (สร้างอัตโนมัติ, ไม่ track ใน git)
 ```
 
-## ความปลอดภัย
-
-> **สำคัญ:** อย่า commit ไฟล์ต่อไปนี้ขึ้น git เด็ดขาด
-> - `.env` — มี path ที่ sensitive
-> - `credentials.json` — OAuth client secret
-> - `token.json` — OAuth access/refresh token
-
-ไฟล์เหล่านี้ถูก exclude ใน `.gitignore` แล้ว
